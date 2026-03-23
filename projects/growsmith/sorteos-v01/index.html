@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorteos Module v0.1 — GrowSmith</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0A0A0B;
+      color: #fff;
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+    .back {
+      position: fixed;
+      top: 24px; left: 24px;
+      color: #555;
+      text-decoration: none;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      transition: color 0.2s;
+    }
+    .back:hover { color: #fff; }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: #5AE8B518;
+      color: #5AE8B5;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-family: 'Space Mono', monospace;
+      font-size: 32px;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+    .version {
+      color: #5AE8B5;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .placeholder {
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 16/9;
+      border: 2px dashed rgba(255,255,255,0.08);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      color: #444;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+    }
+    .placeholder__icon { font-size: 40px; opacity: 0.4; }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <a class="back" href="../../..">← joan.lab</a>
+  <span class="badge">GrowSmith</span>
+  <h1>Sorteos Module</h1>
+  <p class="version">v0.1</p>
+  <div class="placeholder">
+    <span class="placeholder__icon">◇</span>
+    <span>Prototype goes here</span>
+    <span style="font-size:11px; color:#333">Replace this file with your actual prototype</span>
+  </div>
+</body>
+</html>

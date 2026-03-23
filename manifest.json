@@ -1,0 +1,101 @@
+{
+  "lab": {
+    "name": "joan.lab",
+    "owner": "Joan",
+    "description": "Prototype experimentation workspace"
+  },
+  "projects": [
+    {
+      "id": "morphika",
+      "name": "Morphika",
+      "color": "#E8FF5A",
+      "description": "CGI & Visual Production Studio tools",
+      "prototypes": [
+        {
+          "id": "review-v01",
+          "name": "Morphika Review",
+          "version": "v0.1",
+          "date": "2025-03-18",
+          "status": "active",
+          "description": "Frame.io-style client review tool — versioned assets, timestamped comments",
+          "tags": ["review", "client-facing", "video"],
+          "path": "projects/morphika/review-v01/index.html"
+        },
+        {
+          "id": "review-v02",
+          "name": "Morphika Review",
+          "version": "v0.2",
+          "date": "2025-03-20",
+          "status": "active",
+          "description": "Image annotations + multi-version comparison view",
+          "tags": ["review", "annotations", "comparison"],
+          "path": "projects/morphika/review-v02/index.html"
+        }
+      ]
+    },
+    {
+      "id": "growsmith",
+      "name": "GrowSmith",
+      "color": "#5AE8B5",
+      "description": "Instagram CRM & Audience Management SaaS",
+      "prototypes": [
+        {
+          "id": "dashboard-v03",
+          "name": "Analytics Dashboard",
+          "version": "v0.3",
+          "date": "2025-02-10",
+          "status": "active",
+          "description": "Core dashboard with story reach metrics and engagement timeline",
+          "tags": ["analytics", "dashboard", "metrics"],
+          "path": "projects/growsmith/dashboard-v03/index.html"
+        },
+        {
+          "id": "sorteos-v01",
+          "name": "Sorteos Module",
+          "version": "v0.1",
+          "date": "2025-03-01",
+          "status": "wip",
+          "description": "Freemium giveaway module — OAuth acquisition trigger and lead capture",
+          "tags": ["sorteos", "freemium", "oauth"],
+          "path": "projects/growsmith/sorteos-v01/index.html"
+        }
+      ]
+    },
+    {
+      "id": "torre-atangia",
+      "name": "Torre Atangia",
+      "color": "#E8A85A",
+      "description": "Artés property — agro, IoT & experiences",
+      "prototypes": [
+        {
+          "id": "iot-dashboard-v01",
+          "name": "IoT Sensor Dashboard",
+          "version": "v0.1",
+          "date": "2025-01-15",
+          "status": "concept",
+          "description": "ESP32 + LoRaWAN sensor monitoring for almond/pistachio plantation",
+          "tags": ["iot", "sensors", "agriculture"],
+          "path": "projects/torre-atangia/iot-dashboard-v01/index.html"
+        }
+      ]
+    },
+    {
+      "id": "darksmith",
+      "name": "DarkSmith",
+      "color": "#B05AE8",
+      "description": "Competitor intelligence scraping (private)",
+      "prototypes": [
+        {
+          "id": "scraper-v01",
+          "name": "Profile Scraper",
+          "version": "v0.1",
+          "date": "2025-02-25",
+          "status": "concept",
+          "description": "Agency-facing competitor IG analytics via private scraping infrastructure",
+          "tags": ["scraping", "intelligence", "agencies"],
+          "path": "projects/darksmith/scraper-v01/index.html"
+        }
+      ]
+    }
+  ]
+}
