@@ -72,7 +72,7 @@
           "name": "IoT Sensor Dashboard",
           "version": "v0.1",
           "date": "2025-01-15",
-          "status": "concept",
+          "status": "acive",
           "description": "ESP32 + LoRaWAN sensor monitoring for almond/pistachio plantation",
           "tags": ["iot", "sensors", "agriculture"],
           "path": "projects/torre-atangia/iot-dashboard-v01/index.html"
