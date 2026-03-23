@@ -1,85 +1,802 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IoT Sensor Dashboard v0.1 — Torre Atangia</title>
+  <title>Torre Atangia — IoT Sensor Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: #0A0A0B;
-      color: #fff;
-      font-family: 'Inter', -apple-system, system-ui, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
+
+    :root {
+      --bg: #0C0E09;
+      --surface: #12150F;
+      --surface-raised: #181C14;
+      --border: rgba(200, 180, 120, 0.08);
+      --border-hover: rgba(200, 180, 120, 0.16);
+      --amber: #E8A85A;
+      --amber-dim: #C4883A;
+      --green: #7CB342;
+      --green-bright: #A0D650;
+      --blue: #5A9FE8;
+      --red: #E85A5A;
+      --soil: #8D6E47;
+      --text: #E8E4DA;
+      --text-secondary: #A09882;
+      --text-muted: #665E4E;
+      --mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --heading: 'Space Mono', monospace;
+      --body: 'Inter', -apple-system, system-ui, sans-serif;
     }
-    .back {
-      position: fixed;
-      top: 24px; left: 24px;
-      color: #555;
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* Subtle grain */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.6;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse-soft {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    @media (max-width: 640px) { .container { padding: 0 16px; } }
+
+    /* ── Navigation ──────────────────────────────── */
+    .nav {
+      padding: 20px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+
+    .nav__back {
+      color: var(--text-muted);
       text-decoration: none;
-      font-size: 13px;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--mono);
+      font-size: 12px;
       transition: color 0.2s;
     }
-    .back:hover { color: #fff; }
-    .badge {
-      display: inline-block;
+    .nav__back:hover { color: var(--amber); }
+
+    .nav__status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--green);
+    }
+
+    .nav__dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse-soft 2s ease-in-out infinite;
+    }
+
+    /* ── Header ──────────────────────────────────── */
+    .header {
+      margin-bottom: 40px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .header__label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       padding: 4px 12px;
       border-radius: 20px;
-      background: #E8A85A18;
-      color: #E8A85A;
-      font-size: 12px;
+      background: rgba(232, 168, 90, 0.1);
+      border: 1px solid rgba(232, 168, 90, 0.15);
+      color: var(--amber);
+      font-family: var(--mono);
+      font-size: 11px;
       font-weight: 600;
-      font-family: 'JetBrains Mono', monospace;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
-    h1 {
-      font-family: 'Space Mono', monospace;
-      font-size: 32px;
+
+    .header__title {
+      font-family: var(--heading);
+      font-size: clamp(28px, 4vw, 38px);
+      font-weight: 700;
       letter-spacing: -0.03em;
+      color: var(--text);
       margin-bottom: 6px;
     }
-    .version {
-      color: #E8A85A;
-      font-family: 'JetBrains Mono', monospace;
+
+    .header__subtitle {
       font-size: 14px;
-      margin-bottom: 24px;
+      color: var(--text-secondary);
+      max-width: 560px;
+      line-height: 1.6;
     }
-    .placeholder {
-      width: 100%;
-      max-width: 800px;
-      aspect-ratio: 16/9;
-      border: 2px dashed rgba(255,255,255,0.08);
-      border-radius: 16px;
+
+    /* ── Sensor overview strip ───────────────────── */
+    .sensors-strip {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .sensor-node {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      cursor: default;
+      transition: all 0.2s;
+    }
+
+    .sensor-node:hover {
+      border-color: var(--border-hover);
+      background: var(--surface-raised);
+    }
+
+    .sensor-node__dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+    }
+
+    .sensor-node__dot.online { background: var(--green); box-shadow: 0 0 6px rgba(124,179,66,0.4); }
+    .sensor-node__dot.offline { background: var(--red); }
+    .sensor-node__dot.idle { background: var(--text-muted); }
+
+    /* ── Dashboard grid ──────────────────────────── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: auto;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 540px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Card base ───────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      transition: all 0.25s;
+      animation: fadeUp 0.5s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      border-color: var(--border-hover);
+      background: var(--surface-raised);
+    }
+
+    .card--span2 { grid-column: span 2; }
+    .card--span4 { grid-column: span 4; }
+
+    @media (max-width: 540px) {
+      .card--span2, .card--span4 { grid-column: span 1; }
+    }
+
+    .card__label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card__label-icon {
+      font-size: 13px;
+      opacity: 0.5;
+    }
+
+    /* ── Metric cards ────────────────────────────── */
+    .metric {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metric__value {
+      font-family: var(--heading);
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .metric__unit {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .metric__trend {
+      font-family: var(--mono);
+      font-size: 11px;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .metric__trend.up { color: var(--green); }
+    .metric__trend.down { color: var(--red); }
+    .metric__trend.stable { color: var(--text-muted); }
+
+    /* ── Mini sparkline (CSS only) ───────────────── */
+    .sparkline {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 32px;
+      margin-top: 12px;
+    }
+
+    .sparkline__bar {
+      flex: 1;
+      border-radius: 2px 2px 0 0;
+      min-width: 4px;
+      transition: height 0.3s ease;
+    }
+
+    /* ── Zone map ────────────────────────────────── */
+    .zone-map {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 4px;
+      aspect-ratio: 5/3;
+    }
+
+    .zone-cell {
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
-      gap: 12px;
-      color: #444;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 14px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: rgba(255,255,255,0.5);
+      cursor: default;
+      transition: all 0.2s;
+      position: relative;
     }
-    .placeholder__icon { font-size: 40px; opacity: 0.4; }
+
+    .zone-cell:hover {
+      transform: scale(1.05);
+      z-index: 1;
+    }
+
+    .zone-cell:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a1a;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      white-space: nowrap;
+      pointer-events: none;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* ── Irrigation timeline ─────────────────────── */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .timeline__row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .timeline__time {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      width: 48px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .timeline__bar-container {
+      flex: 1;
+      height: 20px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .timeline__bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+
+    .timeline__label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+      width: 36px;
+      flex-shrink: 0;
+    }
+
+    /* ── Alerts ───────────────────────────────────── */
+    .alerts {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .alert--warn {
+      background: rgba(232, 168, 90, 0.06);
+      border: 1px solid rgba(232, 168, 90, 0.12);
+      color: var(--amber);
+    }
+
+    .alert--info {
+      background: rgba(90, 159, 232, 0.06);
+      border: 1px solid rgba(90, 159, 232, 0.12);
+      color: var(--blue);
+    }
+
+    .alert--ok {
+      background: rgba(124, 179, 66, 0.06);
+      border: 1px solid rgba(124, 179, 66, 0.12);
+      color: var(--green);
+    }
+
+    .alert__icon {
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .alert__text { flex: 1; }
+
+    .alert__time {
+      font-family: var(--mono);
+      font-size: 10px;
+      opacity: 0.6;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── Weather strip ───────────────────────────── */
+    .weather {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .weather__item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .weather__icon { font-size: 22px; }
+
+    .weather__val {
+      font-family: var(--heading);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .weather__label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .weather__divider {
+      width: 1px;
+      height: 36px;
+      background: var(--border);
+    }
+
+    /* ── Footer ──────────────────────────────────── */
+    .footer {
+      padding: 24px 0 40px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(200,180,120,0.1); border-radius: 3px; }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <a class="back" href="../../..">← joan.lab</a>
-  <span class="badge">Torre Atangia</span>
-  <h1>IoT Sensor Dashboard</h1>
-  <p class="version">v0.1</p>
-  <div class="placeholder">
-    <span class="placeholder__icon">◇</span>
-    <span>Prototype goes here</span>
-    <span style="font-size:11px; color:#333">Replace this file with your actual prototype</span>
+
+<div class="container">
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a class="nav__back" href="../../..">← joan.lab</a>
+    <div class="nav__status">
+      <span class="nav__dot"></span>
+      6/8 nodes online
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header__label">
+      <span>◇</span>
+      Torre Atangia · IoT Monitor
+    </div>
+    <h1 class="header__title">Sensor Dashboard</h1>
+    <p class="header__subtitle">
+      Monitorización en tiempo real de la finca de Artés — 2.5 ha de almendros y pistachos.
+      Red de sensores ESP32 + LoRaWAN con telemetría cada 15 min.
+    </p>
+  </header>
+
+  <!-- Sensor nodes strip -->
+  <div class="sensors-strip">
+    <div class="sensor-node"><span class="sensor-node__dot online"></span> N01 · Almendros Norte</div>
+    <div class="sensor-node"><span class="sensor-node__dot online"></span> N02 · Almendros Sur</div>
+    <div class="sensor-node"><span class="sensor-node__dot online"></span> N03 · Pistachos A</div>
+    <div class="sensor-node"><span class="sensor-node__dot online"></span> N04 · Pistachos B</div>
+    <div class="sensor-node"><span class="sensor-node__dot online"></span> N05 · Masía</div>
+    <div class="sensor-node"><span class="sensor-node__dot online"></span> N06 · Depósito agua</div>
+    <div class="sensor-node"><span class="sensor-node__dot offline"></span> N07 · Camino acceso</div>
+    <div class="sensor-node"><span class="sensor-node__dot idle"></span> N08 · Estación meteo</div>
   </div>
+
+  <br>
+
+  <!-- Main grid -->
+  <div class="grid">
+
+    <!-- Soil moisture -->
+    <div class="card" style="animation-delay: 0.05s">
+      <div class="card__label">
+        <span>Humedad suelo</span>
+        <span class="card__label-icon">💧</span>
+      </div>
+      <div class="metric">
+        <span class="metric__value" style="color: var(--blue)">34<span style="font-size:18px">%</span></span>
+        <span class="metric__unit">volumétrica · 20cm prof.</span>
+        <span class="metric__trend down">↓ 3% últimas 6h</span>
+      </div>
+      <div class="sparkline" id="spark-moisture"></div>
+    </div>
+
+    <!-- Temperature -->
+    <div class="card" style="animation-delay: 0.1s">
+      <div class="card__label">
+        <span>Temp. suelo</span>
+        <span class="card__label-icon">🌡</span>
+      </div>
+      <div class="metric">
+        <span class="metric__value" style="color: var(--amber)">18.4<span style="font-size:18px">°C</span></span>
+        <span class="metric__unit">media ponderada 4 zonas</span>
+        <span class="metric__trend up">↑ 1.2° vs ayer</span>
+      </div>
+      <div class="sparkline" id="spark-temp"></div>
+    </div>
+
+    <!-- Water tank -->
+    <div class="card" style="animation-delay: 0.15s">
+      <div class="card__label">
+        <span>Depósito agua</span>
+        <span class="card__label-icon">🪣</span>
+      </div>
+      <div class="metric">
+        <span class="metric__value" style="color: var(--green)">72<span style="font-size:18px">%</span></span>
+        <span class="metric__unit">~5.400 L de 7.500 L</span>
+        <span class="metric__trend stable">→ estable 24h</span>
+      </div>
+      <div style="margin-top:12px; height:8px; background:rgba(255,255,255,0.04); border-radius:4px; overflow:hidden">
+        <div style="width:72%; height:100%; background: linear-gradient(90deg, var(--green), var(--green-bright)); border-radius:4px; animation: breathe 4s ease-in-out infinite"></div>
+      </div>
+    </div>
+
+    <!-- Battery -->
+    <div class="card" style="animation-delay: 0.2s">
+      <div class="card__label">
+        <span>Batería nodos</span>
+        <span class="card__label-icon">⚡</span>
+      </div>
+      <div class="metric">
+        <span class="metric__value" style="color: var(--green-bright)">89<span style="font-size:18px">%</span></span>
+        <span class="metric__unit">media · min: N07 (12%)</span>
+        <span class="metric__trend down" style="color: var(--red)">⚠ N07 batería crítica</span>
+      </div>
+      <div style="display:flex; gap:3px; margin-top:12px">
+        <div style="flex:1;height:16px;border-radius:3px;background:var(--green);opacity:0.8" title="N01: 95%"></div>
+        <div style="flex:1;height:16px;border-radius:3px;background:var(--green);opacity:0.8" title="N02: 91%"></div>
+        <div style="flex:1;height:16px;border-radius:3px;background:var(--green);opacity:0.7" title="N03: 88%"></div>
+        <div style="flex:1;height:16px;border-radius:3px;background:var(--green);opacity:0.7" title="N04: 85%"></div>
+        <div style="flex:1;height:16px;border-radius:3px;background:var(--green);opacity:0.9" title="N05: 93%"></div>
+        <div style="flex:1;height:16px;border-radius:3px;background:var(--green);opacity:0.8" title="N06: 90%"></div>
+        <div style="flex:1;height:16px;border-radius:3px;background:var(--red);opacity:0.9" title="N07: 12%"></div>
+        <div style="flex:1;height:16px;border-radius:3px;background:var(--amber);opacity:0.6" title="N08: 58%"></div>
+      </div>
+    </div>
+
+    <!-- Zone map -->
+    <div class="card card--span2" style="animation-delay: 0.25s">
+      <div class="card__label">
+        <span>Mapa de zonas — humedad relativa suelo</span>
+        <span class="card__label-icon">🗺</span>
+      </div>
+      <div class="zone-map" id="zoneMap"></div>
+    </div>
+
+    <!-- Irrigation schedule -->
+    <div class="card card--span2" style="animation-delay: 0.3s">
+      <div class="card__label">
+        <span>Riego programado hoy</span>
+        <span class="card__label-icon">🚿</span>
+      </div>
+      <div class="timeline">
+        <div class="timeline__row">
+          <span class="timeline__time">06:00</span>
+          <div class="timeline__bar-container">
+            <div class="timeline__bar" style="width:60%; background: linear-gradient(90deg, var(--blue), rgba(90,159,232,0.3))"></div>
+          </div>
+          <span class="timeline__label">45 min</span>
+        </div>
+        <div class="timeline__row">
+          <span class="timeline__time">11:30</span>
+          <div class="timeline__bar-container">
+            <div class="timeline__bar" style="width:27%; background: linear-gradient(90deg, var(--blue), rgba(90,159,232,0.3))"></div>
+          </div>
+          <span class="timeline__label">20 min</span>
+        </div>
+        <div class="timeline__row">
+          <span class="timeline__time">18:00</span>
+          <div class="timeline__bar-container">
+            <div class="timeline__bar" style="width:80%; background: linear-gradient(90deg, var(--amber), rgba(232,168,90,0.3)); opacity: 0.4"></div>
+          </div>
+          <span class="timeline__label">60 min</span>
+        </div>
+        <div class="timeline__row">
+          <span class="timeline__time">22:00</span>
+          <div class="timeline__bar-container">
+            <div class="timeline__bar" style="width:40%; background: linear-gradient(90deg, rgba(255,255,255,0.15), rgba(255,255,255,0.03)); opacity: 0.3"></div>
+          </div>
+          <span class="timeline__label">30 min</span>
+        </div>
+      </div>
+      <p style="margin-top:12px; font-family: var(--mono); font-size:10px; color: var(--text-muted)">
+        ● completado &nbsp; ● en curso &nbsp; ○ pendiente
+      </p>
+    </div>
+
+    <!-- Weather -->
+    <div class="card card--span2" style="animation-delay: 0.35s">
+      <div class="card__label">
+        <span>Meteo actual — Artés (Bages)</span>
+        <span class="card__label-icon">☀</span>
+      </div>
+      <div class="weather">
+        <div class="weather__item">
+          <span class="weather__icon">☀️</span>
+          <span class="weather__val" style="color:var(--amber)">24°</span>
+          <span class="weather__label">Temp</span>
+        </div>
+        <div class="weather__divider"></div>
+        <div class="weather__item">
+          <span class="weather__icon">💧</span>
+          <span class="weather__val" style="color:var(--blue)">42%</span>
+          <span class="weather__label">Humedad</span>
+        </div>
+        <div class="weather__divider"></div>
+        <div class="weather__item">
+          <span class="weather__icon">💨</span>
+          <span class="weather__val">12</span>
+          <span class="weather__label">km/h NW</span>
+        </div>
+        <div class="weather__divider"></div>
+        <div class="weather__item">
+          <span class="weather__icon">🌧</span>
+          <span class="weather__val" style="color:var(--text-muted)">0%</span>
+          <span class="weather__label">Lluvia 24h</span>
+        </div>
+        <div class="weather__divider"></div>
+        <div class="weather__item">
+          <span class="weather__icon">☀</span>
+          <span class="weather__val" style="color:var(--amber)">8.2</span>
+          <span class="weather__label">UV index</span>
+        </div>
+        <div class="weather__divider"></div>
+        <div class="weather__item">
+          <span class="weather__icon">🌅</span>
+          <span class="weather__val">14.1h</span>
+          <span class="weather__label">Luz solar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="card card--span2" style="animation-delay: 0.4s">
+      <div class="card__label">
+        <span>Alertas</span>
+        <span class="card__label-icon">🔔</span>
+      </div>
+      <div class="alerts">
+        <div class="alert alert--warn">
+          <span class="alert__icon">⚠</span>
+          <span class="alert__text">Nodo N07 (Camino acceso) — batería al 12%. Reemplazar panel solar o batería.</span>
+          <span class="alert__time">hace 2h</span>
+        </div>
+        <div class="alert alert--info">
+          <span class="alert__icon">ℹ</span>
+          <span class="alert__text">Zona Pistachos B — humedad suelo bajo umbral (28%). Considerar riego extra.</span>
+          <span class="alert__time">hace 4h</span>
+        </div>
+        <div class="alert alert--ok">
+          <span class="alert__icon">✓</span>
+          <span class="alert__text">Riego matutino completado correctamente. Consumo: 320L (previsto: 340L).</span>
+          <span class="alert__time">hace 8h</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <span>Torre Atangia · Artés, Bages</span>
+    <span>ESP32 + LoRaWAN · Supabase backend · v0.1 concept</span>
+  </footer>
+
+</div>
+
+<script>
+  // ── Sparkline generator ──────────────────────────
+  function createSparkline(containerId, data, color) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    const max = Math.max(...data);
+    data.forEach((val, i) => {
+      const bar = document.createElement('div');
+      bar.className = 'sparkline__bar';
+      const h = (val / max) * 100;
+      bar.style.height = h + '%';
+      bar.style.background = color;
+      bar.style.opacity = 0.3 + (h / 100) * 0.7;
+      bar.style.animationDelay = (i * 0.03) + 's';
+      el.appendChild(bar);
+    });
+  }
+
+  // Simulated 24h data
+  createSparkline('spark-moisture',
+    [42,41,40,39,39,38,38,37,36,36,35,35,36,38,40,39,38,37,36,35,35,34,34,34],
+    'var(--blue)');
+
+  createSparkline('spark-temp',
+    [14,13,12,12,13,15,17,19,21,22,23,24,24,23,22,21,20,19,19,18,18,18,18,18],
+    'var(--amber)');
+
+  // ── Zone map ─────────────────────────────────────
+  const zones = [
+    { name: 'Alm. N1', moisture: 38 },
+    { name: 'Alm. N2', moisture: 35 },
+    { name: 'Alm. N3', moisture: 41 },
+    { name: 'Camino', moisture: 0 },
+    { name: 'Masía', moisture: 0 },
+    { name: 'Alm. S1', moisture: 32 },
+    { name: 'Alm. S2', moisture: 36 },
+    { name: 'Alm. S3', moisture: 30 },
+    { name: 'Pist. A1', moisture: 33 },
+    { name: 'Pist. A2', moisture: 29 },
+    { name: 'Depós.', moisture: 0 },
+    { name: 'Pist. B1', moisture: 28 },
+    { name: 'Pist. B2', moisture: 26 },
+    { name: 'Pist. B3', moisture: 31 },
+    { name: 'Bosque', moisture: 0 },
+  ];
+
+  const zoneMap = document.getElementById('zoneMap');
+  zones.forEach(z => {
+    const cell = document.createElement('div');
+    cell.className = 'zone-cell';
+
+    if (z.moisture === 0) {
+      cell.style.background = 'rgba(255,255,255,0.02)';
+      cell.style.color = 'rgba(255,255,255,0.15)';
+      cell.textContent = z.name;
+      cell.dataset.tooltip = z.name;
+    } else {
+      // Color from red (dry) to green (wet) based on moisture
+      const ratio = Math.min(z.moisture / 45, 1);
+      const r = Math.round(232 - ratio * 120);
+      const g = Math.round(90 + ratio * 100);
+      const b = Math.round(60 + ratio * 20);
+      cell.style.background = `rgba(${r},${g},${b}, 0.2)`;
+      cell.style.border = `1px solid rgba(${r},${g},${b}, 0.25)`;
+      cell.textContent = z.moisture + '%';
+      cell.dataset.tooltip = `${z.name}: ${z.moisture}% humedad`;
+    }
+
+    zoneMap.appendChild(cell);
+  });
+</script>
+
 </body>
 </html>
